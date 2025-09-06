@@ -230,9 +230,10 @@ function renderProfiles() {
 
   gallery.innerHTML = filteredProfiles.map(profile => `
     <div class="bg-white rounded-xl shadow-lg card-hover-effect fade-in overflow-hidden">
-      <!-- Imagen grande arriba -->
-      <div class="relative h-48 bg-gradient-to-br from-indigo-100 to-purple-100">
-        <img src="${profile.photo}" alt="${profile.name}" class="w-full h-full object-cover">
+      <div 
+        class="relative **h-96** bg-gradient-to-br from-indigo-100 to-purple-100 **bg-center bg-cover**"
+        style="background-image: url('${profile.photo}');"
+      >
         <div class="absolute inset-0 bg-black bg-opacity-20"></div>
         ${currentRole === 'admin' ? `
           <button onclick="deleteProfile('${profile._id}')" 
@@ -242,12 +243,9 @@ function renderProfiles() {
         ` : ''}
       </div>
       
-      <!-- Contenido abajo -->
       <div class="p-4">
-        <!-- Nombre -->
         <h3 class="text-xl font-bold text-gray-900 mb-2 text-center">${profile.name}</h3>
         
-        <!-- Categorías -->
         <div class="flex flex-wrap gap-1 justify-center mb-3">
           ${profile.categories.map(cat => `
             <span class="inline-block px-3 py-1 text-xs font-medium bg-indigo-100 text-indigo-700 rounded-full">
@@ -256,7 +254,6 @@ function renderProfiles() {
           `).join('')}
         </div>
         
-        <!-- Links -->
         <div class="space-y-2">
           ${profile.links.map(link => `
             <a href="https://${link}" target="_blank" rel="noopener noreferrer" 
