@@ -230,10 +230,8 @@ function renderProfiles() {
 
   gallery.innerHTML = filteredProfiles.map(profile => `
     <div class="bg-white rounded-xl shadow-lg card-hover-effect fade-in overflow-hidden">
-      <div 
-        class="relative w-full h-96 bg-gradient-to-br from-indigo-100 to-purple-100 bg-center bg-cover"
-        style="background-image: url('${profile.photo}');"
-      >
+      <div class="relative w-full h-96 bg-gradient-to-br from-indigo-100 to-purple-100">
+        <img src="${profile.photo}" alt="${profile.name}" class="w-full h-full object-cover object-top">
         <div class="absolute inset-0 bg-black bg-opacity-20"></div>
         ${currentRole === 'admin' ? `
           <button onclick="deleteProfile('${profile._id}')" 
