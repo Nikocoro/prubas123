@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería de Perfiles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide-react@0.292.0/dist/umd/lucide-react.min.js"></script>
+    <script defer src="main.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Estilos personalizados y configuración de la fuente */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Un gris claro para el fondo */
+        }
+        .card-hover-effect {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .card-hover-effect:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        /* Animación para la aparición suave de los elementos */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <!-- Contenedor Principal de la App -->
+    <div id="app" class="min-h-screen">
+
+        <!-- Pantalla de Inicio de Sesión -->
+        <div id="login-screen" class="flex items-center justify-center min-h-screen bg-gray-100">
+            <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg">
+                <div class="text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-indigo-600"><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v5Z"/><path d="M18 9h2a2 2 0 0 1 2 2v9l-4-4h-2a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/></svg>
+                    <h1 class="mt-4 text-3xl font-bold text-gray-900">Bienvenido</h1>
+                    <p class="mt-2 text-sm text-gray-600">Inicia sesión para continuar</p>
+                </div>
+                <!-- Formulario de Login -->
+                <form id="login-form" class="space-y-6">
+                    <div>
+                        <label for="username" class="text-sm font-medium text-gray-700">Usuario</label>
+                        <input id="username" name="username" type="text" required class="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="admin o user">
+                    </div>
+                    <div>
+                        <label for="password" class="text-sm font-medium text-gray-700">Contraseña</label>
+                        <input id="password" name="password" type="password" required class="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="123">
+                    </div>
+                    <div>
+                        <button type="submit" class="w-full px-4 py-2 font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                            Ingresar
+                        </button>
+                    </div>
+                    <p id="login-error" class="text-sm text-center text-red-500"></p>
+                    <p class="text-xs text-center text-gray-500">Usuarios de prueba: (user: admin, pass: 123) o (user: user, pass: 123)</p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Pantalla Principal de la Galería (oculta por defecto) -->
+        <div id="main-screen" class="hidden">
+            <!-- Barra de Navegación -->
+            <header class="sticky top-0 z-10 bg-white shadow-md">
+                <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                    <h1 class="text-2xl font-bold text-indigo-600">Galería de Perfiles</h1>
+                    <div class="flex items-center space-x-4">
+                        <span id="welcome-message" class="text-sm text-gray-600 hidden sm:block"></span>
+                        <button id="logout-button" class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors">
+                            Salir
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="container mx-auto p-4 md:p-8">
+                <!-- Panel de Administración (solo para admin) -->
+                <section id="admin-panel" class="hidden mb-8 p-6 bg-white rounded-xl shadow-lg fade-in">
+                    <h2 class="text-xl font-bold mb-4">Panel de Administración</h2>
+                    <form id="add-profile-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="col-span-1">
+                            <label for="name" class="block text-sm font-medium text-gray-700">Nombre</label>
+                            <input type="text" id="name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div class="col-span-1">
+                            <label for="photo" class="block text-sm font-medium text-gray-700">URL de la Foto</label>
+                            <input type="url" id="photo" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div class="col-span-1">
+                            <label for="links" class="block text-sm font-medium text-gray-700">Links (ej: instagram.com, twitter.com)</label>
+                            <input type="text" id="links" placeholder="Separados por comas" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div class="col-span-1">
+                             <label for="categories" class="block text-sm font-medium text-gray-700">Categorías (ej: Modelo, Influencer)</label>
+                            <input type="text" id="categories" placeholder="Separadas por comas" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div class="col-span-1 md:col-span-2 text-right">
+                            <button type="submit" class="inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Agregar Perfil
+                            </button>
+                        </div>
+                    </form>
+                    <h2 class="text-xl font-bold mb-4">Gestión de Usuarios</h2>
+                    <form id="add-user-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                        <label for="new-username" class="block text-sm font-medium text-gray-700">Usuario</label>
+                        <input type="text" id="new-username" required class="mt-1 block w-full border px-3 py-2 rounded-md shadow-sm">
+                        </div>
+                        <div>
+                        <label for="new-password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                        <input type="password" id="new-password" required class="mt-1 block w-full border px-3 py-2 rounded-md shadow-sm">
+                        </div>
+                        <div>
+                        <label for="new-role" class="block text-sm font-medium text-gray-700">Rol</label>
+                        <select id="new-role" class="mt-1 block w-full border px-3 py-2 rounded-md shadow-sm">
+                            <option value="user">Usuario</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                        </div>
+                        <div class="col-span-2 text-right">
+                        <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-md">Crear Usuario</button>
+                        </div>
+                    </form>
+                </section>
+                <!-- Filtros y Búsqueda -->
+                <section class="mb-8 p-6 bg-white rounded-xl shadow-lg fade-in">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div class="relative flex-grow">
+                             <input type="search" id="search-box" placeholder="Buscar por nombre..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-indigo-400 focus:border-transparent">
+                             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                             </div>
+                        </div>
+                        <div id="category-filters" class="flex flex-wrap gap-2 justify-center md:justify-start">
+                           <!-- Las categorías se generarán aquí con JS -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Galería de Perfiles -->
+                <section id="gallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    <!-- Las tarjetas de perfil se generarán aquí con JS -->
+                </section>
+                
+                <!-- Mensaje cuando no hay resultados -->
+                 <div id="no-results" class="hidden text-center py-16">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-400"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="15" x2="16" y2="15"></line><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                    <h3 class="mt-4 text-xl font-semibold text-gray-700">No se encontraron resultados</h3>
+                    <p class="mt-1 text-gray-500">Intenta cambiar los filtros o el término de búsqueda.</p>
+                </div>
+
+            </main>
+        </div>
+    </div>
+</body>
+</html>
