@@ -229,38 +229,43 @@ function renderProfiles() {
   noResults.classList.add("hidden");
 
   gallery.innerHTML = filteredProfiles.map(profile => `
-    <div class="bg-white rounded-xl shadow-lg card-hover-effect fade-in">
-      <div class="p-6">
-        <div class="flex items-center space-x-4 mb-4">
-          <img src="${profile.photo}" alt="${profile.name}" class="w-16 h-16 rounded-full object-cover">
-          <div>
-            <h3 class="text-lg font-semibold text-gray-800">${profile.name}</h3>
-            <div class="flex flex-wrap gap-1 mt-1">
-              ${profile.categories.map(cat => `
-                <span class="inline-block px-2 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-full">
-                  ${cat}
-                </span>
-              `).join('')}
-            </div>
-          </div>
+    <div class="bg-white rounded-xl shadow-lg card-hover-effect fade-in overflow-hidden">
+      <!-- Imagen grande arriba -->
+      <div class="relative h-48 bg-gradient-to-br from-indigo-100 to-purple-100">
+        <img src="${profile.photo}" alt="${profile.name}" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+        ${currentRole === 'admin' ? `
+          <button onclick="deleteProfile('${profile._id}')" 
+                  class="absolute top-3 right-3 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition-colors shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"></polyline><path d="m19,6v14a2,2 0,0 1,-2,2H7a2,2 0,0 1,-2,-2V6m3,0V4a2,2 0,0 1,2,-2h4a2,2 0,0 1,2,2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+          </button>
+        ` : ''}
+      </div>
+      
+      <!-- Contenido abajo -->
+      <div class="p-4">
+        <!-- Nombre -->
+        <h3 class="text-xl font-bold text-gray-900 mb-2 text-center">${profile.name}</h3>
+        
+        <!-- Categorías -->
+        <div class="flex flex-wrap gap-1 justify-center mb-3">
+          ${profile.categories.map(cat => `
+            <span class="inline-block px-3 py-1 text-xs font-medium bg-indigo-100 text-indigo-700 rounded-full">
+              ${cat}
+            </span>
+          `).join('')}
         </div>
-        <div class="flex flex-wrap gap-2">
+        
+        <!-- Links -->
+        <div class="space-y-2">
           ${profile.links.map(link => `
             <a href="https://${link}" target="_blank" rel="noopener noreferrer" 
-               class="inline-flex items-center px-3 py-1 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-full hover:bg-indigo-100 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+               class="block w-full text-center py-2 px-3 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-200">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
               ${link}
             </a>
           `).join('')}
         </div>
-        ${currentRole === 'admin' ? `
-          <div class="mt-4 pt-4 border-t border-gray-200">
-            <button onclick="deleteProfile('${profile._id}')" 
-                    class="text-red-600 hover:text-red-800 text-sm font-medium">
-              Eliminar
-            </button>
-          </div>
-        ` : ''}
       </div>
     </div>
   `).join('');
