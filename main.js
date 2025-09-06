@@ -25,6 +25,8 @@ loginForm.addEventListener("submit", async (e) => {
   const password = e.target.password.value;
   loginError.textContent = "";
 
+  console.log("Intentando login con:", { username, password: "***" });
+
   try {
     const res = await fetch("/.netlify/functions/login", {
       method: "POST",
@@ -32,8 +34,12 @@ loginForm.addEventListener("submit", async (e) => {
       body: JSON.stringify({ username, password })
     });
 
+    console.log("Response status:", res.status);
+
     if (res.ok) {
       const data = await res.json();
+      console.log("Login exitoso:", data);
+      
       authToken = data.token;
       currentRole = data.role;
 
@@ -48,12 +54,19 @@ loginForm.addEventListener("submit", async (e) => {
       // Cargar perfiles
       await loadProfiles();
     } else {
-      const error = await res.json();
-      loginError.textContent = error.error || "Credenciales inválidas";
+      const errorText = await res.text();
+      console.log("Error response:", errorText);
+      
+      try {
+        const error = JSON.parse(errorText);
+        loginError.textContent = error.error || "Credenciales inválidas";
+      } catch {
+        loginError.textContent = `Error ${res.status}: ${errorText}`;
+      }
     }
   } catch (err) {
     console.error("Error en login:", err);
-    loginError.textContent = "Error de conexión";
+    loginError.textContent = "Error de conexión: " + err.message;
   }
 });
 

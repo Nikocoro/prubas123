@@ -31,7 +31,35 @@ exports.handler = async (event) => {
   }
 
   try {
+    console.log("Login attempt - Body:", event.body);
+    
+    // Verificar variables de entorno
+    if (!process.env.MONGO_URI) {
+      console.error("MONGO_URI no está definida");
+      return {
+        statusCode: 500,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ error: "Error de configuración del servidor" })
+      };
+    }
+
+    if (!JWT_SECRET) {
+      console.error("JWT_SECRET no está definida");
+      return {
+        statusCode: 500,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ error: "Error de configuración del servidor" })
+      };
+    }
+
     const { username, password } = JSON.parse(event.body);
+    console.log("Login attempt for username:", username);
 
     if (!username || !password) {
       return {
@@ -45,8 +73,11 @@ exports.handler = async (event) => {
     }
 
     await client.connect();
+    console.log("Connected to MongoDB");
+    
     const db = client.db("miApp");
     const user = await db.collection("users").findOne({ username });
+    console.log("User found:", user ? "Yes" : "No");
 
     if (!user) {
       return { 
@@ -60,6 +91,8 @@ exports.handler = async (event) => {
     }
 
     const valid = await bcrypt.compare(password, user.password);
+    console.log("Password valid:", valid);
+    
     if (!valid) {
       return { 
         statusCode: 401,
@@ -77,6 +110,7 @@ exports.handler = async (event) => {
       { expiresIn: "2h" }
     );
 
+    console.log("Login successful for:", username);
     return {
       statusCode: 200,
       headers: {
@@ -93,9 +127,13 @@ exports.handler = async (event) => {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ error: "Error interno del servidor" })
+      body: JSON.stringify({ error: "Error interno del servidor: " + err.message })
     };
   } finally {
-    await client.close();
+    try {
+      await client.close();
+    } catch (e) {
+      console.error("Error closing connection:", e);
+    }
   }
 };
