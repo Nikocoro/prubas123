@@ -15,7 +15,7 @@
         /* Estilos personalizados y configuración de la fuente */
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             min-height: 100vh;
         }
         .card-hover-effect {
@@ -23,7 +23,7 @@
         }
         .card-hover-effect:hover {
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.5);
         }
         /* Animación para la aparición suave de los elementos */
         @keyframes fadeIn {
@@ -35,7 +35,7 @@
         }
         /* Fondo con patrón sutil */
         .bg-pattern {
-            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.1) 1px, transparent 0);
+            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
             background-size: 30px 30px;
         }
         /* Grid mejorado para las tarjetas */
@@ -50,39 +50,68 @@
                 gap: 2rem;
             }
         }
+        
+        /* Modal overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: #1e293b;
+            border: 1px solid #374151;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
     </style>
 </head>
-<body class="antialiased text-gray-800 bg-pattern">
+<body class="antialiased text-gray-100 bg-pattern">
 
     <!-- Contenedor Principal de la App -->
     <div id="app" class="min-h-screen">
 
         <!-- Pantalla de Inicio de Sesión -->
         <div id="login-screen" class="flex items-center justify-center min-h-screen p-4">
-            <div class="w-full max-w-md p-8 space-y-6 bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20">
+            <div class="w-full max-w-md p-8 space-y-6 bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-slate-700/50">
                 <div class="text-center">
                     <div class="mx-auto w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v5Z"/><path d="M18 9h2a2 2 0 0 1 2 2v9l-4-4h-2a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/></svg>
                     </div>
-                    <h1 class="text-3xl font-bold text-gray-900">Bienvenido</h1>
-                    <p class="mt-2 text-sm text-gray-600">Inicia sesión para continuar</p>
+                    <h1 class="text-3xl font-bold text-white">Bienvenido</h1>
+                    <p class="mt-2 text-sm text-gray-300">Inicia sesión para continuar</p>
                 </div>
                 <!-- Formulario de Login -->
                 <form id="login-form" class="space-y-6">
                     <div>
-                        <label for="username" class="text-sm font-medium text-gray-700">Usuario</label>
-                        <input id="username" name="username" type="text" required class="w-full px-4 py-3 mt-1 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="admin o user">
+                        <label for="username" class="text-sm font-medium text-gray-200">Usuario</label>
+                        <input id="username" name="username" type="text" required class="w-full px-4 py-3 mt-1 bg-slate-700 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-white placeholder-gray-400" placeholder="admin o user">
                     </div>
                     <div>
-                        <label for="password" class="text-sm font-medium text-gray-700">Contraseña</label>
-                        <input id="password" name="password" type="password" required class="w-full px-4 py-3 mt-1 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" placeholder="123">
+                        <label for="password" class="text-sm font-medium text-gray-200">Contraseña</label>
+                        <input id="password" name="password" type="password" required class="w-full px-4 py-3 mt-1 bg-slate-700 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-white placeholder-gray-400" placeholder="123">
                     </div>
                     <div>
                         <button type="submit" class="w-full px-4 py-3 font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform hover:scale-105">
                             Ingresar
                         </button>
                     </div>
-                    <p id="login-error" class="text-sm text-center text-red-500"></p>
+                    <p id="login-error" class="text-sm text-center text-red-400"></p>
                 </form>
             </div>
         </div>
@@ -90,11 +119,11 @@
         <!-- Pantalla Principal de la Galería (oculta por defecto) -->
         <div id="main-screen" class="hidden">
             <!-- Barra de Navegación -->
-            <header class="sticky top-0 z-10 bg-white/90 backdrop-blur-md shadow-lg border-b border-white/20">
+            <header class="sticky top-0 z-10 bg-slate-800/90 backdrop-blur-md shadow-lg border-b border-slate-700/50">
                 <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Galería de Perfiles</h1>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Galería de Perfiles</h1>
                     <div class="flex items-center space-x-4">
-                        <span id="welcome-message" class="text-sm text-gray-600 hidden sm:block"></span>
+                        <span id="welcome-message" class="text-sm text-gray-300 hidden sm:block"></span>
                         <button id="logout-button" class="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-red-600 rounded-lg hover:from-red-600 hover:to-red-700 transition-all transform hover:scale-105 shadow-lg">
                             Salir
                         </button>
@@ -104,24 +133,24 @@
 
             <main class="container mx-auto p-4 md:p-8">
                 <!-- Panel de Administración (solo para admin) -->
-                <section id="admin-panel" class="hidden mb-8 p-6 bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl fade-in border border-white/20">
-                    <h2 class="text-xl font-bold mb-4 text-gray-900">Panel de Administración</h2>
+                <section id="admin-panel" class="hidden mb-8 p-6 bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl fade-in border border-slate-700/50">
+                    <h2 class="text-xl font-bold mb-4 text-white">Panel de Administración</h2>
                     <form id="add-profile-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="col-span-1">
-                            <label for="name" class="block text-sm font-medium text-gray-700">Nombre</label>
-                            <input type="text" id="name" required class="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                            <label for="name" class="block text-sm font-medium text-gray-200">Nombre</label>
+                            <input type="text" id="name" required class="mt-1 block w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-white placeholder-gray-400">
                         </div>
                         <div class="col-span-1">
-                            <label for="photo" class="block text-sm font-medium text-gray-700">URL de la Foto</label>
-                            <input type="url" id="photo" required class="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                            <label for="photo" class="block text-sm font-medium text-gray-200">URL de la Foto</label>
+                            <input type="url" id="photo" required class="mt-1 block w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-white placeholder-gray-400">
                         </div>
                         <div class="col-span-1">
-                            <label for="links" class="block text-sm font-medium text-gray-700">Links (ej: instagram.com, twitter.com)</label>
-                            <input type="text" id="links" placeholder="Separados por comas" required class="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                            <label for="links" class="block text-sm font-medium text-gray-200">Links (ej: instagram.com, twitter.com)</label>
+                            <input type="text" id="links" placeholder="Separados por comas" required class="mt-1 block w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-white placeholder-gray-400">
                         </div>
                         <div class="col-span-1">
-                             <label for="categories" class="block text-sm font-medium text-gray-700">Categorías (ej: Modelo, Influencer)</label>
-                            <input type="text" id="categories" placeholder="Separadas por comas" required class="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                             <label for="categories" class="block text-sm font-medium text-gray-200">Categorías (ej: Modelo, Influencer)</label>
+                            <input type="text" id="categories" placeholder="Separadas por comas" required class="mt-1 block w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-white placeholder-gray-400">
                         </div>
                         <div class="col-span-1 md:col-span-2 text-right">
                             <button type="submit" class="inline-flex justify-center py-3 px-8 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform hover:scale-105">
@@ -129,19 +158,19 @@
                             </button>
                         </div>
                     </form>
-                    <h2 class="text-xl font-bold mb-4 mt-8 text-gray-900">Gestión de Usuarios</h2>
+                    <h2 class="text-xl font-bold mb-4 mt-8 text-white">Gestión de Usuarios</h2>
                     <form id="add-user-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                        <label for="new-username" class="block text-sm font-medium text-gray-700">Usuario</label>
-                        <input type="text" id="new-username" required class="mt-1 block w-full border px-4 py-3 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                        <label for="new-username" class="block text-sm font-medium text-gray-200">Usuario</label>
+                        <input type="text" id="new-username" required class="mt-1 block w-full bg-slate-700 border border-slate-600 px-4 py-3 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-white placeholder-gray-400">
                         </div>
                         <div>
-                        <label for="new-password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-                        <input type="password" id="new-password" required class="mt-1 block w-full border px-4 py-3 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                        <label for="new-password" class="block text-sm font-medium text-gray-200">Contraseña</label>
+                        <input type="password" id="new-password" required class="mt-1 block w-full bg-slate-700 border border-slate-600 px-4 py-3 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-white placeholder-gray-400">
                         </div>
                         <div>
-                        <label for="new-role" class="block text-sm font-medium text-gray-700">Rol</label>
-                        <select id="new-role" class="mt-1 block w-full border px-4 py-3 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                        <label for="new-role" class="block text-sm font-medium text-gray-200">Rol</label>
+                        <select id="new-role" class="mt-1 block w-full bg-slate-700 border border-slate-600 px-4 py-3 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-white">
                             <option value="user">Usuario</option>
                             <option value="admin">Administrador</option>
                         </select>
@@ -151,11 +180,12 @@
                         </div>
                     </form>
                 </section>
+                
                 <!-- Filtros y Búsqueda -->
-                <section class="mb-8 p-6 bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl fade-in border border-white/20">
+                <section class="mb-8 p-6 bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl fade-in border border-slate-700/50">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div class="relative flex-grow">
-                             <input type="search" id="search-box" placeholder="Buscar por nombre..." class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-full focus:ring-2 focus:ring-indigo-400 focus:border-transparent shadow-sm transition-all">
+                             <input type="search" id="search-box" placeholder="Buscar por nombre..." class="w-full pl-12 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-full focus:ring-2 focus:ring-indigo-400 focus:border-transparent shadow-sm transition-all text-white placeholder-gray-400">
                              <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                              </div>
@@ -173,14 +203,59 @@
                 
                 <!-- Mensaje cuando no hay resultados -->
                  <div id="no-results" class="hidden text-center py-16">
-                    <div class="mx-auto w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="15" x2="16" y2="15"></line><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                    <div class="mx-auto w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="15" x2="16" y2="15"></line><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
                     </div>
-                    <h3 class="text-xl font-semibold text-white mb-2">No se encontraron resultados</h3>
-                    <p class="text-white/80">Intenta cambiar los filtros o el término de búsqueda.</p>
+                    <h3 class="text-xl font-semibold text-gray-200 mb-2">No se encontraron resultados</h3>
+                    <p class="text-gray-400">Intenta cambiar los filtros o el término de búsqueda.</p>
                 </div>
 
             </main>
+        </div>
+    </div>
+
+    <!-- Modal de Edición -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">Editar Perfil</h3>
+                <button id="close-modal" class="text-gray-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            
+            <form id="edit-profile-form" class="space-y-6">
+                <input type="hidden" id="edit-profile-id">
+                
+                <div>
+                    <label for="edit-name" class="block text-sm font-medium text-gray-200">Nombre</label>
+                    <input type="text" id="edit-name" required class="mt-1 block w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-white placeholder-gray-400">
+                </div>
+                
+                <div>
+                    <label for="edit-photo" class="block text-sm font-medium text-gray-200">URL de la Foto</label>
+                    <input type="url" id="edit-photo" required class="mt-1 block w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-white placeholder-gray-400">
+                </div>
+                
+                <div>
+                    <label for="edit-links" class="block text-sm font-medium text-gray-200">Links (ej: instagram.com, twitter.com)</label>
+                    <input type="text" id="edit-links" placeholder="Separados por comas" required class="mt-1 block w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-white placeholder-gray-400">
+                </div>
+                
+                <div>
+                    <label for="edit-categories" class="block text-sm font-medium text-gray-200">Categorías (ej: Modelo, Influencer)</label>
+                    <input type="text" id="edit-categories" placeholder="Separadas por comas" required class="mt-1 block w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-white placeholder-gray-400">
+                </div>
+                
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="cancel-edit" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all transform hover:scale-105">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </body>
