@@ -23,7 +23,7 @@ let authToken = null;
 let currentRole = null;
 let allProfiles = [];
 let filteredProfiles = [];
-let activeCategories = new Set(); // Cambiado: ahora es un Set para múltiples categorías
+let activeCategories = new Set();
 let editingProfileId = null;
 
 // Función de login
@@ -82,7 +82,7 @@ loginForm.addEventListener("submit", async (e) => {
 logoutButton.addEventListener("click", () => {
   authToken = null;
   currentRole = null;
-  activeCategories.clear(); // Limpiar categorías seleccionadas
+  activeCategories.clear();
   loginScreen.classList.remove("hidden");
   mainScreen.classList.add("hidden");
   adminPanel.classList.add("hidden");
@@ -256,59 +256,52 @@ function updateResultsCounter() {
     } else if (selectedCount > 0) {
       const categoriesText = selectedCount === 1 ? 'categoría' : 'categorías';
       const selectedCategoriesArray = [...activeCategories];
-      resultsCounter.textContent = `Mostrando ${showing} de ${total} perfiles con TODAS las categorías: ${selectedCategoriesArray.join(', ')}`;
+      resultsCounter.textContent = `Mostrando ${showing} de ${total} perfiles con ${categoriesText}: ${selectedCategoriesArray.join(', ')}`;
     } else {
       resultsCounter.textContent = `Mostrando ${showing} de ${total} perfiles`;
     }
   }
 }
 
-// Renderizar filtros de categoría con multi-selección
+// Renderizar filtros de categoría sin iconos específicos
 function renderCategoryFilters() {
   const categories = new Set();
   allProfiles.forEach(profile => {
     profile.categories.forEach(cat => categories.add(cat));
   });
 
-  // Botón "Todos" - funciona como toggle para limpiar selecciones
+  // Botón "Todos"
   let filtersHTML = `
     <button 
-      class="filter-button px-6 py-3 text-sm font-medium rounded-xl transition-all shadow-md min-w-max ${activeCategories.size === 0 ? 'active text-white' : 'bg-slate-700/80 text-gray-300 hover:bg-slate-600/80'}"
+      class="filter-button px-6 py-3 text-sm font-medium rounded-xl transition-all shadow-md min-w-max ${activeCategories.size === 0 ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white' : 'bg-slate-700/80 text-gray-300 hover:bg-slate-600/80'}"
       onclick="selectAllCategories()"
     >
       <span class="flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-        Todos ${activeCategories.size === 0 ? '' : `(${activeCategories.size})`}
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+          <rect width="7" height="9" x="3" y="3" rx="1"/>
+          <rect width="7" height="5" x="14" y="3" rx="1"/>
+          <rect width="7" height="9" x="14" y="12" rx="1"/>
+          <rect width="7" height="5" x="3" y="16" rx="1"/>
+        </svg>
+        Todos ${activeCategories.size > 0 ? `(${activeCategories.size} filtros)` : ''}
       </span>
     </button>
   `;
 
-  // Iconos específicos para categorías
-  const categoryIcons = {
-    'Modelo': '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
-    'Influencer': '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/>',
-    'Streamer': '<polygon points="23,7 16,12 23,17 23,7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>',
-    'Gamer': '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/><path d="M12 6h.01"/><path d="m8 10-2-2v8l2-2"/>',
-    'Músico': '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
-    'Artista': '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>',
-    'Fotógrafo': '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
-    'Escritora': '<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/>',
-    'Coach': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m22 2-1 10 3-3-3-3z"/>',
-    'Bailarina': '<circle cx="12" cy="4" r="2"/><path d="m15.5 8.5-1-1V21h-5V7.5l-1 1"/>',
-    'Productor': '<circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6"/><path d="m21 12-6-3v6l6-3"/><path d="m3 12 6-3v6l-6-3"/>'
-  };
-
+  // Categorías individuales sin iconos específicos
   categories.forEach(category => {
     const isSelected = activeCategories.has(category);
-    const icon = categoryIcons[category] || '<circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/>';
     
     filtersHTML += `
       <button 
-        class="filter-button px-6 py-3 text-sm font-medium rounded-xl transition-all shadow-md min-w-max relative ${isSelected ? 'active text-white' : 'bg-slate-700/80 text-gray-300 hover:bg-slate-600/80'}"
+        class="filter-button px-6 py-3 text-sm font-medium rounded-xl transition-all shadow-md min-w-max ${isSelected ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white' : 'bg-slate-700/80 text-gray-300 hover:bg-slate-600/80'}"
         onclick="toggleCategory('${category}')"
       >
         <span class="flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">${icon}</svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 1v6m0 6v6"/>
+          </svg>
           ${category}
           ${isSelected ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-2"><polyline points="20,6 9,17 4,12"/></svg>' : ''}
         </span>
@@ -319,7 +312,7 @@ function renderCategoryFilters() {
   categoryFilters.innerHTML = filtersHTML;
 }
 
-// Nueva función: Toggle de categoría individual
+// Toggle de categoría individual
 function toggleCategory(category) {
   if (activeCategories.has(category)) {
     activeCategories.delete(category);
@@ -331,7 +324,7 @@ function toggleCategory(category) {
   renderCategoryFilters();
 }
 
-// Nueva función: Seleccionar/Deseleccionar todas las categorías
+// Seleccionar/Deseleccionar todas las categorías
 function selectAllCategories() {
   activeCategories.clear();
   applyFilters();
@@ -346,20 +339,24 @@ function clearAllFilters() {
   renderCategoryFilters();
 }
 
-// Aplicar filtros con lógica de múltiples categorías
+// Aplicar filtros - CORREGIDO: filtrado por categorías múltiples
 function applyFilters() {
   const searchTerm = searchBox.value.toLowerCase();
   
   filteredProfiles = allProfiles.filter(profile => {
+    // Filtrar por término de búsqueda
     const matchesSearch = profile.name.toLowerCase().includes(searchTerm);
     
-    // Si no hay categorías seleccionadas, mostrar todos
+    // Si no hay categorías seleccionadas, solo aplicar filtro de búsqueda
     if (activeCategories.size === 0) {
       return matchesSearch;
     }
     
-    // Si hay categorías seleccionadas, el perfil debe tener al menos una de ellas
-    const matchesCategory = profile.categories.some(cat => activeCategories.has(cat));
+    // CORREGIDO: Si hay categorías seleccionadas, el perfil debe tener AL MENOS UNA de ellas
+    // Para requerir TODAS las categorías, cambiar 'some' por 'every'
+    const matchesCategory = [...activeCategories].some(selectedCategory => 
+      profile.categories.includes(selectedCategory)
+    );
     
     return matchesSearch && matchesCategory;
   });
@@ -368,7 +365,7 @@ function applyFilters() {
   updateResultsCounter();
 }
 
-// Renderizar perfiles (sin cambios)
+// Renderizar perfiles
 function renderProfiles() {
   if (filteredProfiles.length === 0) {
     gallery.classList.add("hidden");
