@@ -255,7 +255,8 @@ function updateResultsCounter() {
       resultsCounter.textContent = `Mostrando ${total} perfiles`;
     } else if (selectedCount > 0) {
       const categoriesText = selectedCount === 1 ? 'categoría' : 'categorías';
-      resultsCounter.textContent = `Mostrando ${showing} de ${total} perfiles • ${selectedCount} ${categoriesText} seleccionadas`;
+      const selectedCategoriesArray = [...activeCategories];
+      resultsCounter.textContent = `Mostrando ${showing} de ${total} perfiles con TODAS las categorías: ${selectedCategoriesArray.join(', ')}`;
     } else {
       resultsCounter.textContent = `Mostrando ${showing} de ${total} perfiles`;
     }
