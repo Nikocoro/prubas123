@@ -339,7 +339,7 @@ function clearAllFilters() {
   renderCategoryFilters();
 }
 
-// Aplicar filtros - CORREGIDO: filtrado por categorías múltiples
+// Aplicar filtros - CORREGIDO: filtrado por categorías múltiples (requiere TODAS)
 function applyFilters() {
   const searchTerm = searchBox.value.toLowerCase();
   
@@ -352,9 +352,9 @@ function applyFilters() {
       return matchesSearch;
     }
     
-    // CORREGIDO: Si hay categorías seleccionadas, el perfil debe tener AL MENOS UNA de ellas
-    // Para requerir TODAS las categorías, cambiar 'some' por 'every'
-    const matchesCategory = [...activeCategories].some(selectedCategory => 
+    // CORREGIDO: Ahora se requiere que el perfil tenga TODAS las categorías activas.
+    // Se cambió '.some' por '.every'.
+    const matchesCategory = [...activeCategories].every(selectedCategory => 
       profile.categories.includes(selectedCategory)
     );
     
