@@ -19,12 +19,45 @@ const editProfileForm = document.getElementById("edit-profile-form");
 const closeModalBtn = document.getElementById("close-modal");
 const cancelEditBtn = document.getElementById("cancel-edit");
 
+// Paginación
+const PROFILES_PER_PAGE = 20;
+let currentPage = 1;
+let totalPages = 1;
+
 let authToken = null;
 let currentRole = null;
 let allProfiles = [];
 let filteredProfiles = [];
 let activeCategories = new Set();
 let editingProfileId = null;
+
+// Intersection Observer para lazy loading
+let imageObserver;
+
+// Inicializar Intersection Observer para lazy loading
+function initImageObserver() {
+  const options = {
+    root: null,
+    rootMargin: '50px',
+    threshold: 0.1
+  };
+
+  imageObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        const src = img.getAttribute('data-src');
+        if (src) {
+          img.src = src;
+          img.removeAttribute('data-src');
+          img.classList.remove('lazy-loading');
+          img.classList.add('lazy-loaded');
+          imageObserver.unobserve(img);
+        }
+      }
+    });
+  }, options);
+}
 
 // Función de login
 loginForm.addEventListener("submit", async (e) => {
@@ -59,7 +92,8 @@ loginForm.addEventListener("submit", async (e) => {
         adminPanel.classList.remove("hidden");
       }
 
-      // Cargar perfiles
+      // Inicializar observer y cargar perfiles
+      initImageObserver();
       await loadProfiles();
     } else {
       const errorText = await res.text();
@@ -83,6 +117,7 @@ logoutButton.addEventListener("click", () => {
   authToken = null;
   currentRole = null;
   activeCategories.clear();
+  currentPage = 1;
   loginScreen.classList.remove("hidden");
   mainScreen.classList.add("hidden");
   adminPanel.classList.add("hidden");
@@ -233,8 +268,11 @@ async function loadProfiles() {
     if (res.ok) {
       allProfiles = await res.json();
       filteredProfiles = [...allProfiles];
+      currentPage = 1; // Reset a la primera página
+      calculatePagination();
       renderProfiles();
       renderCategoryFilters();
+      renderPagination();
       updateResultsCounter();
     } else {
       console.error("Error al cargar perfiles");
@@ -244,26 +282,43 @@ async function loadProfiles() {
   }
 }
 
+// Calcular paginación
+function calculatePagination() {
+  totalPages = Math.ceil(filteredProfiles.length / PROFILES_PER_PAGE);
+  if (currentPage > totalPages) {
+    currentPage = Math.max(1, totalPages);
+  }
+}
+
+// Obtener perfiles de la página actual
+function getCurrentPageProfiles() {
+  const startIndex = (currentPage - 1) * PROFILES_PER_PAGE;
+  const endIndex = startIndex + PROFILES_PER_PAGE;
+  return filteredProfiles.slice(startIndex, endIndex);
+}
+
 // Actualizar contador de resultados
 function updateResultsCounter() {
   if (resultsCounter) {
     const total = allProfiles.length;
-    const showing = filteredProfiles.length;
+    const filtered = filteredProfiles.length;
+    const startIndex = (currentPage - 1) * PROFILES_PER_PAGE + 1;
+    const endIndex = Math.min(currentPage * PROFILES_PER_PAGE, filtered);
     const selectedCount = activeCategories.size;
     
     if (selectedCount === 0 && !searchBox.value.trim()) {
-      resultsCounter.textContent = `Mostrando ${total} perfiles`;
+      resultsCounter.textContent = `Mostrando ${startIndex}-${endIndex} de ${total} perfiles`;
     } else if (selectedCount > 0) {
       const categoriesText = selectedCount === 1 ? 'categoría' : 'categorías';
       const selectedCategoriesArray = [...activeCategories];
-      resultsCounter.textContent = `Mostrando ${showing} de ${total} perfiles con ${categoriesText}: ${selectedCategoriesArray.join(', ')}`;
+      resultsCounter.textContent = `Mostrando ${startIndex}-${endIndex} de ${filtered} perfiles con ${categoriesText}: ${selectedCategoriesArray.join(', ')}`;
     } else {
-      resultsCounter.textContent = `Mostrando ${showing} de ${total} perfiles`;
+      resultsCounter.textContent = `Mostrando ${startIndex}-${endIndex} de ${filtered} perfiles`;
     }
   }
 }
 
-// Renderizar filtros de categoría sin iconos específicos
+// Renderizar filtros de categoría
 function renderCategoryFilters() {
   const categories = new Set();
   allProfiles.forEach(profile => {
@@ -288,7 +343,7 @@ function renderCategoryFilters() {
     </button>
   `;
 
-  // Categorías individuales sin iconos específicos
+  // Categorías individuales
   categories.forEach(category => {
     const isSelected = activeCategories.has(category);
     
@@ -339,7 +394,7 @@ function clearAllFilters() {
   renderCategoryFilters();
 }
 
-// Aplicar filtros - CORREGIDO: filtrado por categorías múltiples (requiere TODAS)
+// Aplicar filtros
 function applyFilters() {
   const searchTerm = searchBox.value.toLowerCase();
   
@@ -352,8 +407,7 @@ function applyFilters() {
       return matchesSearch;
     }
     
-    // CORREGIDO: Ahora se requiere que el perfil tenga TODAS las categorías activas.
-    // Se cambió '.some' por '.every'.
+    // Requiere que el perfil tenga TODAS las categorías activas
     const matchesCategory = [...activeCategories].every(selectedCategory => 
       profile.categories.includes(selectedCategory)
     );
@@ -361,13 +415,125 @@ function applyFilters() {
     return matchesSearch && matchesCategory;
   });
 
+  currentPage = 1; // Reset a la primera página cuando se aplican filtros
+  calculatePagination();
   renderProfiles();
+  renderPagination();
   updateResultsCounter();
 }
 
-// Renderizar perfiles
+// Cambiar página
+function changePage(page) {
+  if (page < 1 || page > totalPages) return;
+  
+  currentPage = page;
+  renderProfiles();
+  renderPagination();
+  updateResultsCounter();
+  
+  // Scroll suave al inicio de la galería
+  document.getElementById('gallery').scrollIntoView({ 
+    behavior: 'smooth', 
+    block: 'start' 
+  });
+}
+
+// Renderizar paginación
+function renderPagination() {
+  // Buscar o crear el contenedor de paginación
+  let paginationContainer = document.getElementById('pagination-container');
+  if (!paginationContainer) {
+    paginationContainer = document.createElement('div');
+    paginationContainer.id = 'pagination-container';
+    paginationContainer.className = 'pagination-container';
+    
+    // Insertar después de la galería
+    const gallery = document.getElementById('gallery');
+    gallery.parentNode.insertBefore(paginationContainer, gallery.nextSibling);
+  }
+
+  if (totalPages <= 1) {
+    paginationContainer.innerHTML = '';
+    return;
+  }
+
+  let paginationHTML = '<div class="flex items-center space-x-2">';
+  
+  // Botón anterior
+  paginationHTML += `
+    <button 
+      onclick="changePage(${currentPage - 1})" 
+      ${currentPage === 1 ? 'disabled' : ''} 
+      class="pagination-button inactive px-4 py-2 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+        <polyline points="15,18 9,12 15,6"/>
+      </svg>
+      <span class="pagination-text">Anterior</span>
+    </button>
+  `;
+
+  // Números de página
+  const maxVisiblePages = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+  
+  if (endPage - startPage < maxVisiblePages - 1) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+
+  if (startPage > 1) {
+    paginationHTML += `
+      <button onclick="changePage(1)" class="pagination-button inactive">1</button>
+    `;
+    if (startPage > 2) {
+      paginationHTML += '<span class="px-2 text-gray-400">...</span>';
+    }
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    paginationHTML += `
+      <button 
+        onclick="changePage(${i})" 
+        class="pagination-button ${i === currentPage ? 'active' : 'inactive'}"
+      >
+        ${i}
+      </button>
+    `;
+  }
+
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      paginationHTML += '<span class="px-2 text-gray-400">...</span>';
+    }
+    paginationHTML += `
+      <button onclick="changePage(${totalPages})" class="pagination-button inactive">${totalPages}</button>
+    `;
+  }
+
+  // Botón siguiente
+  paginationHTML += `
+    <button 
+      onclick="changePage(${currentPage + 1})" 
+      ${currentPage === totalPages ? 'disabled' : ''} 
+      class="pagination-button inactive px-4 py-2 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center"
+    >
+      <span class="pagination-text">Siguiente</span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1">
+        <polyline points="9,18 15,12 9,6"/>
+      </svg>
+    </button>
+  `;
+
+  paginationHTML += '</div>';
+  paginationContainer.innerHTML = paginationHTML;
+}
+
+// Renderizar perfiles con lazy loading
 function renderProfiles() {
-  if (filteredProfiles.length === 0) {
+  const currentProfiles = getCurrentPageProfiles();
+  
+  if (currentProfiles.length === 0) {
     gallery.classList.add("hidden");
     noResults.classList.remove("hidden");
     return;
@@ -376,10 +542,17 @@ function renderProfiles() {
   gallery.classList.remove("hidden");
   noResults.classList.add("hidden");
 
-  gallery.innerHTML = filteredProfiles.map(profile => `
+  gallery.innerHTML = currentProfiles.map(profile => `
     <div class="bg-slate-800/90 backdrop-blur-sm rounded-xl shadow-lg card-hover-effect fade-in overflow-hidden border border-slate-700/50">
       <div class="relative w-full h-96 bg-gradient-to-br from-slate-700 to-slate-900">
-        <img src="${profile.photo}" alt="${profile.name}" class="w-full h-full object-cover object-top" loading="lazy">
+        <img 
+          data-src="${profile.photo}" 
+          alt="${profile.name}" 
+          class="w-full h-full object-cover object-top lazy-loading"
+          style="background: linear-gradient(135deg, #475569 0%, #1e293b 100%);"
+          onload="this.classList.add('lazy-loaded')"
+          onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNDc1NTY5Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzk0YTNiOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlbiBubyBkaXNwb25pYmxlPC90ZXh0Pjwvc3ZnPg=='"
+        >
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
         ${currentRole === 'admin' ? `
           <div class="absolute top-3 right-3 flex space-x-2">
@@ -424,6 +597,12 @@ function renderProfiles() {
       </div>
     </div>
   `).join('');
+
+  // Aplicar lazy loading a las nuevas imágenes
+  const lazyImages = gallery.querySelectorAll('img[data-src]');
+  lazyImages.forEach(img => {
+    imageObserver.observe(img);
+  });
 }
 
 // Eliminar perfil (solo admin)
@@ -463,3 +642,4 @@ window.selectAllCategories = selectAllCategories;
 window.deleteProfile = deleteProfile;
 window.openEditModal = openEditModal;
 window.clearAllFilters = clearAllFilters;
+window.changePage = changePage;

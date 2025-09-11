@@ -80,6 +80,144 @@
             max-height: 90vh;
             overflow-y: auto;
         }
+
+        /* Estilos para Lazy Loading */
+        .lazy-loading {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
+        }
+
+        .lazy-loaded {
+            opacity: 1;
+        }
+
+        /* Efecto de shimmer para imágenes cargando */
+        @keyframes shimmer {
+            0% {
+                background-position: -200px 0;
+            }
+            100% {
+                background-position: calc(200px + 100%) 0;
+            }
+        }
+
+        .lazy-loading::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            background-size: 200px 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        /* Estilos para paginación */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .pagination-button {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease-in-out;
+            border: none;
+            cursor: pointer;
+            min-width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination-button:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .pagination-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-button.active {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+
+        .pagination-button.inactive {
+            background: rgba(71, 85, 105, 0.8);
+            color: #d1d5db;
+        }
+
+        .pagination-button.inactive:hover:not(:disabled) {
+            background: rgba(71, 85, 105, 1);
+        }
+
+        /* Loading spinner para imágenes */
+        .image-loading {
+            position: relative;
+        }
+
+        .image-loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 24px;
+            height: 24px;
+            margin: -12px 0 0 -12px;
+            border: 2px solid #475569;
+            border-top: 2px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mejoras en la paginación responsive */
+        @media (max-width: 640px) {
+            .pagination-container {
+                gap: 0.25rem;
+            }
+            
+            .pagination-button {
+                padding: 0.375rem 0.5rem;
+                font-size: 0.8rem;
+                min-width: 36px;
+            }
+            
+            .pagination-text {
+                display: none;
+            }
+        }
+
+        /* Transiciones suaves para el scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Indicador de scroll en las categorías */
+        .categories-scroll {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .categories-scroll::-webkit-scrollbar {
+            display: none;
+        }
     </style>
 </head>
 <body class="antialiased text-gray-100 bg-pattern bg-slate-900">
@@ -239,6 +377,11 @@
                     <button onclick="clearAllFilters()" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all transform hover:scale-105">
                         Ver todos los perfiles
                     </button>
+                </div>
+
+                <!-- Contenedor de paginación (se genera dinámicamente) -->
+                <div id="pagination-container" class="pagination-container">
+                    <!-- La paginación se generará aquí con JS -->
                 </div>
 
             </main>
